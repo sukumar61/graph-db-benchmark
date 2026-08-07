@@ -1,14 +1,19 @@
 const express = require("express");
-const loadDataset = require("./loaders/loadDataset");
+
+const benchmarkRoutes = require("./routes/benchmarkRoutes");
 
 const app = express();
 
 const PORT = 3000;
 
-app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
+app.use(express.json());
 
-  await loadDataset(
-    "./datasets/soc-pokec-relationships/soc-pokec-subset.txt"
-  );
+app.use("/benchmark", benchmarkRoutes);
+
+app.get("/", (req, res) => {
+  res.send("Graph Database Benchmark API Running");
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

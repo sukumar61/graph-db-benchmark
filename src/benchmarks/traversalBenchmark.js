@@ -1,31 +1,36 @@
-const driver = require("../config/db");
+const {
+  oneHopTraversal,
+  twoHopTraversal,
+  threeHopTraversal,
+} = require("../repositories/graphRepository");
 
-async function traversalBenchmark(userId) {
-  const session = driver.session();
+async function traversalBenchmark(iterations = 100) {
+  const oneHopResults = [];
+  const twoHopResults = [];
+  const threeHopResults = [];
 
-  const start = Date.now();
+  for (let i = 0; i < iterations; i++) {
+    const userId = String(Math.floor(Math.random() * 8700));
 
-  try {
-    const result = await session.run(
-      `
-      MATCH (u:User {id:$id})-[:KNOWS]->(friend)
-      RETURN friend
-      `,
-      { id: userId }
-    );
+   
+    const hop1 = await oneHopTraversal(userId);
+    oneHopResults.push(hop1.executionTime);
 
-    const end = Date.now();
+   
+    const hop2 = await twoHopTraversal(userId);
+    twoHopResults.push(hop2.executionTime);
 
-    return {
-      user: userId,
-      friends: result.records.length,
-      time: end - start,
-    };
-  } catch (error) {
-    console.log(error);
-  } finally {
-    await session.close();
+   
+    const hop3 = await threeHopTraversal(userId);
+    threeHopResults.push(hop3.executionTime);
   }
+
+  return {
+    benchmark: "Traversal Benchmark",
+    oneHop: oneHopResults,
+    twoHop: twoHopResults,
+    threeHop: threeHopResults,
+  };
 }
 
 module.exports = traversalBenchmark;

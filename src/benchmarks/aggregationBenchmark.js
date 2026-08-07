@@ -1,27 +1,17 @@
-const driver = require("../config/db");
+const { aggregationBenchmark } = require("../repositories/graphRepository");
 
-async function aggregationBenchmark() {
-  const session = driver.session();
+async function runAggregationBenchmark(iterations = 100) {
+  const executionTimes = [];
 
-  const start = Date.now();
-
-  try {
-    const result = await session.run(`
-      MATCH (u:User)
-      RETURN count(u) AS totalUsers
-    `);
-
-    const end = Date.now();
-
-    return {
-      totalUsers: result.records[0].get("totalUsers").toNumber(),
-      time: end - start,
-    };
-  } catch (error) {
-    console.log(error);
-  } finally {
-    await session.close();
+  for (let i = 0; i < iterations; i++) {
+    const result = await aggregationBenchmark();
+    executionTimes.push(result.executionTime);
   }
+
+  return {
+    benchmark: "Aggregation Benchmark",
+    executionTimes,
+  };
 }
 
-module.exports = aggregationBenchmark;
+module.exports = runAggregationBenchmark;

@@ -1,31 +1,17 @@
-const driver = require("../config/db");
+const { lookupUser } = require("../repositories/graphRepository");
 
-async function lookupBenchmark(userId) {
-  const session = driver.session();
+async function lookupBenchmark(iterations = 100) {
+  const executionTimes = [];
 
-  const start = Date.now();
+  for (let i = 0; i < iterations; i++) {
+    const userId = String(Math.floor(Math.random() * 8700));
 
-  try {
-    const result = await session.run(
-      `
-      MATCH (u:User {id:$id})
-      RETURN u
-      `,
-      { id: userId }
-    );
+    const result = await lookupUser(userId);
 
-    const end = Date.now();
-
-    return {
-      user: userId,
-      time: end - start,
-      found: result.records.length > 0,
-    };
-  } catch (error) {
-    console.log(error);
-  } finally {
-    await session.close();
+    executionTimes.push(result.executionTime);
   }
+
+  return executionTimes;
 }
 
 module.exports = lookupBenchmark;
