@@ -1,0 +1,45 @@
+{
+  "success": true,
+  "data": {
+    "lookup": {
+      "average": 161.97,
+      "minimum": 149.91,
+      "maximum": 854.059,
+      "median": 155.102,
+      "p95": 158.819,
+      "throughput": 6.17
+    },
+    "oneHop": {
+      "average": 154.121,
+      "minimum": 150.105,
+      "maximum": 159.333,
+      "median": 154.27,
+      "p95": 157.059,
+      "throughput": 6.49
+    },
+    "twoHop": {
+      "average": 154.231,
+      "minimum": 149.868,
+      "maximum": 160.463,
+      "median": 154.43,
+      "p95": 156.641,
+      "throughput": 6.48
+    },
+    "threeHop": {
+      "average": 153.992,
+      "minimum": 149.71,
+      "maximum": 163.694,
+      "median": 154.154,
+      "p95": 156.31,
+      "throughput": 6.49
+    },
+    "aggregation": {
+      "average": 154.36,
+      "minimum": 150.011,
+      "maximum": 162.529,
+      "median": 154.573,
+      "p95": 156.759,
+      "throughput": 6.48
+    }
+  }
+}
