@@ -10,15 +10,21 @@
   "keywords": [],
   "type": "commonjs",
   "dependencies": {
+    "@ladybugdb/wasm-core": "^0.19.1",
+    "arangojs": "^10.3.1",
     "csv-parser": "^3.2.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "falkordb": "^6.7.0",
     "neo4j-driver": "^6.2.0",
     "readline": "^1.3.0",
-    "redis": "^6.2.0"
+    "redis": "^6.2.0",
+    "surrealdb": "^2.0.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
+  },
+  "allowScripts": {
+    "@ladybugdb/core@0.19.1": true
   }
 }
