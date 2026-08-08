@@ -1,52 +1,122 @@
 # Graph Database Benchmark
 
-## Overview
+A benchmark project comparing the performance of five graph databases using common graph lookup, traversal, and aggregation workloads.
 
-This project benchmarks the performance of graph databases using a common social network dataset. The benchmark measures the execution time of common graph operations under identical workloads to compare performance across different graph database platforms.
+## Databases Compared
 
-The benchmark currently includes:
+- CognoDB
+- Neo4j
+- Memgraph
+- ArangoDB
+- LadybugDB
 
-- CognoDB Cloud
-- Neo4j AuraDB
-- Memgraph Cloud
+## Dataset
 
-The benchmark evaluates:
+The benchmark uses the SNAP soc-Pokec relationship dataset/subset.
 
-- Node Lookup
-- Graph Traversal
-- Aggregation Queries
-- Query Latency
-- Throughput
+The dataset represents relationships between users and is used to evaluate graph lookup, traversal, and aggregation operations.
 
----
+## Benchmark Workloads
 
-# Features
+### 1. Point Lookup
 
-- Graph dataset loading
-- Automated benchmark execution
-- Lookup Benchmark
-- One-Hop Traversal Benchmark
-- Two-Hop Traversal Benchmark
-- Three-Hop Traversal Benchmark
-- Aggregation Benchmark
-- REST API for running benchmarks
-- JSON result generation
+Find a user/node using its identifier.
 
----
+### 2. 1-Hop Traversal
 
-# Project Structure
+Traverse one relationship from a user to a directly connected user.
 
-```
+User → Friend
+
+### 3. 2-Hop Traversal
+
+Traverse two relationship levels.
+
+User → Friend → Friend
+
+### 4. 3-Hop Traversal
+
+Traverse three relationship levels.
+
+User → Friend → Friend → Friend
+
+### 5. Aggregation
+
+Execute an aggregation query over graph relationships.
+
+## Benchmark Methodology
+
+Each workload is executed for 100 iterations.
+
+Execution time is measured using high-resolution timers and recorded in milliseconds (ms).
+
+The primary comparison metric is the average execution time.
+
+Lower execution time indicates better performance.
+
+## Benchmark Results
+
+All values represent average query execution time in milliseconds (ms).
+
+Lower is better.
+
+| Database | Lookup Avg | 1-Hop Avg | 2-Hop Avg | 3-Hop Avg | Aggregation Avg |
+|---|---:|---:|---:|---:|---:|
+| LadybugDB | 7.914 | 9.511 | 21.786 | 24.037 | 9.154 |
+| ArangoDB | 64.585 | 64.637 | 66.526 | 71.250 | 66.450 |
+| Neo4j | 117.916 | 101.488 | 112.074 | 96.870 | 104.244 |
+| Memgraph | 161.970 | 154.121 | 154.231 | 153.992 | 154.360 |
+| CognoDB | 376.398 | 363.778 | 339.289 | 397.556 | 358.919 |
+
+Detailed results are available in:
+
+results/
+├── arango-results.json
+├── cognodb-results.json
+├── ladybug-results.json
+├── memgraph-results.json
+├── neo4j-results.json
+└── comparison.md
+
+## Resource and Fairness
+
+The assessment requires the databases to run under equivalent resource limits.
+
+The following specifications should be documented for each database:
+
+- vCPU
+- RAM
+- Storage
+- Database version
+- Deployment type
+
+### CognoDB
+
+The CognoDB cloud deployment used during testing was configured with:
+
+- vCPU: up to 0.5 vCPU burst
+- RAM: 512 MB
+- Storage: 1 GiB
+- Deployment: Cloud-hosted
+- Version: 0.9.11
+
+The exact resource configuration for the other database deployments should be documented from their respective environments.
+
+For a controlled comparison, all databases should use equivalent CPU, RAM, and storage limits, the same dataset, the same logical workload, and the same number of benchmark iterations.
+
+## Project Structure
+
 graph-db-benchmark/
-│
+├── charts/
 ├── datasets/
 │   └── soc-pokec-relationships/
-│
 ├── results/
+│   ├── arango-results.json
 │   ├── cognodb-results.json
+│   ├── ladybug-results.json
+│   ├── memgraph-results.json
 │   ├── neo4j-results.json
-│   └── memgraph-results.json
-│
+│   └── comparison.md
 ├── src/
 │   ├── benchmarks/
 │   ├── config/
@@ -56,242 +126,144 @@ graph-db-benchmark/
 │   ├── routes/
 │   ├── services/
 │   ├── utils/
-│   └── app.js
-│
+│   ├── runArangoBenchmark.js
+│   ├── runCognoBenchmark.js
+│   └── runLadybugBenchmark.js
 ├── package.json
-├── .env.example
+├── package-lock.json
+├── .gitignore
 └── README.md
-```
 
----
+## Installation
 
-# Technologies Used
+Install the project dependencies:
 
-- Node.js
-- Express.js
-- JavaScript
-- Neo4j Driver
-- Cypher Query Language
+npm install
 
-Graph Databases
+## Environment Variables
 
-- CognoDB Cloud
-- Neo4j AuraDB
-- Memgraph Cloud
+Database credentials are stored in a local .env file.
 
----
-
-# Dataset
-
-**Dataset Name**
-
-Pokec Social Network Dataset
-
-**Source**
-
-Stanford Network Analysis Project (SNAP)
-
-The dataset represents user relationships in a social network where each row contains a directed relationship between two users.
+The .env file is excluded from Git.
 
 Example:
 
-```
-1 5
-1 8
-2 7
-4 1
-```
+COGNO_URI=your-cognodb-uri
+COGNO_USERNAME=your-username
+COGNO_PASSWORD=your-password
 
----
+Never commit real database credentials to the repository.
 
-# Benchmark Operations
+## Running the Benchmarks
 
-## 1. Lookup Benchmark
+### ArangoDB
 
-Retrieves a node using its unique identifier.
+node src/runArangoBenchmark.js
 
-```cypher
-MATCH (u:User {id:$id})
-RETURN u
-```
+Results:
 
----
+results/arango-results.json
 
-## 2. One-Hop Traversal
+### CognoDB
 
-Retrieves immediate neighboring nodes.
+node src/runCognoBenchmark.js
 
-```cypher
-MATCH (u:User {id:$id})-[:KNOWS]->(friend)
-RETURN friend
-```
+Results:
 
----
+results/cognodb-results.json
 
-## 3. Two-Hop Traversal
+### LadybugDB
 
-Traverses two relationships.
+node src/runLadybugBenchmark.js
 
-```cypher
-MATCH (u:User {id:$id})-[:KNOWS]->()-[:KNOWS]->(friend)
-RETURN DISTINCT friend
-```
+Results:
 
----
+results/ladybug-results.json
 
-## 4. Three-Hop Traversal
+Neo4j and Memgraph benchmark results are included in the results/ directory.
 
-Traverses up to three relationships.
+## Results Interpretation
 
-```cypher
-MATCH (u:User {id:$id})-[:KNOWS*1..3]->(friend)
-RETURN DISTINCT friend
-```
+Based on the measured averages in this benchmark run:
 
----
+1. LadybugDB produced the lowest measured execution times.
+2. ArangoDB was the next fastest.
+3. Neo4j showed moderate execution times.
+4. Memgraph showed higher execution times than Neo4j.
+5. CognoDB showed the highest measured execution times.
 
-## 5. Aggregation Benchmark
+These results apply only to this benchmark configuration and should not be treated as a universal ranking of graph databases.
 
-Counts total relationships.
+## Fairness Considerations
 
-```cypher
-MATCH (u:User)-[:KNOWS]->(friend)
-RETURN count(friend)
-```
+For a controlled comparison, databases should use:
 
----
+- The same dataset
+- The same logical queries
+- The same number of iterations
+- Equivalent CPU resources
+- Equivalent RAM limits
+- Equivalent storage limits
+- Comparable database configurations
+- The same client-side timing methodology
 
-# Performance Metrics
+Other factors that can affect results include:
 
-The benchmark records:
+- Network latency
+- Database caching
+- Index configuration
+- Query planner behavior
+- Storage performance
+- Cloud versus local deployment
+- Connection overhead
 
-- Average Latency
-- Median Latency
-- Minimum Latency
-- Maximum Latency
-- P95 Latency
-- Throughput
+## Limitations
 
----
+This benchmark focuses on:
 
-# Installation
+- Point lookup
+- 1-hop traversal
+- 2-hop traversal
+- 3-hop traversal
+- Aggregation
 
-Clone the repository
+It does not currently measure:
 
-```bash
-git clone https://github.com/<your-github-username>/graph-db-benchmark.git
-```
+- Write throughput
+- Concurrent query performance
+- Transaction throughput
+- Replication
+- Failover
+- Horizontal scaling
+- Recovery performance
+- Memory consumption per query
+- Storage engine efficiency
+- Large-scale distributed workloads
 
-Move into the project
+## Reproducibility
 
-```bash
-cd graph-db-benchmark
-```
+The benchmark can be reproduced using the included scripts.
+
+General workflow:
 
 Install dependencies
+↓
+Configure database credentials
+↓
+Load the benchmark dataset
+↓
+Run the database benchmark
+↓
+Execute 100 iterations
+↓
+Save results as JSON
+↓
+Compare average execution times
 
-```bash
-npm install
-```
+## Conclusion
 
----
+This project provides a practical comparison of five graph databases using common graph workloads.
 
-# Environment Variables
+In this benchmark run, LadybugDB produced the lowest measured average execution times, followed by ArangoDB, Neo4j, Memgraph, and CognoDB.
 
-Create a `.env` file.
-
-Example:
-
-```env
-DB_URI=
-DB_USERNAME=
-DB_PASSWORD=
-```
-
----
-
-# Running the Project
-
-Start the application
-
-```bash
-npm start
-```
-
-Run the benchmark
-
-```
-GET http://localhost:3000/benchmark
-```
-
----
-
-# Sample Response
-
-```json
-{
-  "success": true,
-  "data": {
-    "lookup": {},
-    "oneHop": {},
-    "twoHop": {},
-    "threeHop": {},
-    "aggregation": {}
-  }
-}
-```
-
----
-
-# Benchmark Results
-
-Benchmark outputs are stored in the `results` directory.
-
-```
-results/
-├── cognodb-results.json
-├── neo4j-results.json
-└── memgraph-results.json
-```
-
----
-
-# Databases Benchmarked
-
-| Database | Status |
-|----------|--------|
-| CognoDB Cloud | ✅ Completed |
-| Neo4j AuraDB | ✅ Completed |
-| Memgraph Cloud | ✅ Completed |
-
----
-
-# Future Improvements
-
-The benchmark framework can be extended to include additional graph databases such as:
-
-- FalkorDB
-- Neo4j Community Edition
-- Apache AGE
-- KuzuDB
-
-Additional benchmark metrics, visualization dashboards, and performance analysis can also be incorporated.
-
----
-
-# Author
-
-**Renukuntla Sukumar**
-
-### LinkedIn
-
-https://www.linkedin.com/in/sukumar-renukuntla-078686236/
-
-
-
-## Acknowledgements
-
-- Stanford SNAP for providing the Pokec Social Network Dataset.
-- CognoDB Cloud
-- Neo4j AuraDB
-- Memgraph Cloud
+The results are specific to the tested environment, dataset, queries, configuration, and resource allocation and should therefore be interpreted within those constraints.
